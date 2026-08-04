@@ -11,7 +11,7 @@ interface AtheoMarkProps {
 export function AtheoMark({ className, size = 32 }: AtheoMarkProps) {
   return (
     <svg
-      viewBox="0 0 48 48"
+      viewBox="0 0 200 200"
       width={size}
       height={size}
       className={className}
@@ -19,22 +19,25 @@ export function AtheoMark({ className, size = 32 }: AtheoMarkProps) {
       focusable="false"
     >
       <defs>
-        <linearGradient id="atheo-mark-gradient" x1="6" y1="10" x2="42" y2="38" gradientUnits="userSpaceOnUse">
+        <linearGradient id="atheo-mark-gradient" x1="12" y1="140" x2="168" y2="15" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="var(--atheo-coral)" />
           <stop offset="100%" stopColor="var(--atheo-apricot)" />
         </linearGradient>
       </defs>
       <path
-        d="M31 32.5
-          c0 4.8-4.6 7.7-9.8 6.1
-          c-6-1.8-9.5-7.4-7.6-12.2
-          c1.7-4.3 6.6-6.4 11.3-4.9
-          c3.8 1.3 5.9 4.7 4.6 7.7
-          c-1.1 2.6-4.2 3.7-6.8 2.5
-          c-2.1-.9-3.2-3.2-2.3-4.8"
+        d="M 22 138
+          C 2 100, 8 58, 42 38
+          C 78 18, 122 26, 132 60
+          C 138 82, 122 100, 100 100
+          C 84 100, 72 88, 80 76
+          C 90 62, 112 68, 122 82
+          C 130 94, 128 100, 132 88
+          C 142 68, 154 48, 165 28
+          C 168 21, 169 12, 160 10
+          C 154 9, 149 13, 152 18"
         fill="none"
         stroke="url(#atheo-mark-gradient)"
-        strokeWidth={3.6}
+        strokeWidth={14}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
