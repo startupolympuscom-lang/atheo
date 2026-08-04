@@ -48,7 +48,7 @@ export function Hero() {
 
         <div className="relative mx-auto w-full max-w-md pb-16 lg:max-w-none lg:pb-24">
           <div className="lg:flex lg:items-start lg:gap-8">
-            <div className="relative aspect-[4/5] w-full lg:flex-1">
+            <div className="relative aspect-square w-full lg:flex-1">
               <CreatorFrame
                 src={CREATOR_PORTRAITS.hero.src}
                 alt={CREATOR_PORTRAITS.hero.alt}
@@ -57,7 +57,6 @@ export function Hero() {
                 priority
                 sizes="(min-width: 1024px) 38vw, 90vw"
                 className="h-full"
-                imageClassName="object-[0%_20%]"
               >
                 <div className="absolute -bottom-6 left-4 right-4 z-20 flex items-center justify-between gap-3 rounded-2xl bg-atheo-white/95 p-4 shadow-[0_20px_45px_-20px_rgba(40,24,47,0.4)] backdrop-blur sm:left-6 sm:right-8">
                   <div>
