@@ -57,7 +57,7 @@ export function Hero() {
                 priority
                 sizes="(min-width: 1024px) 38vw, 90vw"
                 className="h-full"
-                imageClassName="object-[68%_38%]"
+                imageClassName="object-[0%_20%]"
               >
                 <div className="absolute -bottom-6 left-4 right-4 z-20 flex items-center justify-between gap-3 rounded-2xl bg-atheo-white/95 p-4 shadow-[0_20px_45px_-20px_rgba(40,24,47,0.4)] backdrop-blur sm:left-6 sm:right-8">
                   <div>
