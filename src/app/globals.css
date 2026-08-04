@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------- */
+/* Atheo brand tokens                                                      */
+/* ---------------------------------------------------------------------- */
+:root {
+  --atheo-coral: #ff4550;
+  --atheo-apricot: #ff9a45;
+  --atheo-aubergine: #28182f;
+  --atheo-white: #fcfaf7;
+  --atheo-blush: #fff0ec;
+
+  /* derived tones */
+  --atheo-aubergine-soft: #5c4d63;
+  --atheo-aubergine-mute: #8b7e91;
+  --atheo-line: rgba(40, 24, 47, 0.14);
+  --atheo-line-on-dark: rgba(255, 240, 236, 0.22);
+  --atheo-hairline: rgba(40, 24, 47, 0.08);
+  --atheo-gradient: linear-gradient(90deg, var(--atheo-coral) 0%, var(--atheo-apricot) 100%);
+
+  --container-pad: 1.5rem;
+}
+
+@theme inline {
+  --color-atheo-coral: var(--atheo-coral);
+  --color-atheo-apricot: var(--atheo-apricot);
+  --color-atheo-aubergine: var(--atheo-aubergine);
+  --color-atheo-white: var(--atheo-white);
+  --color-atheo-blush: var(--atheo-blush);
+  --color-atheo-aubergine-soft: var(--atheo-aubergine-soft);
+  --color-atheo-aubergine-mute: var(--atheo-aubergine-mute);
+  --color-atheo-line: var(--atheo-line);
+  --color-atheo-line-on-dark: var(--atheo-line-on-dark);
+  --color-atheo-hairline: var(--atheo-hairline);
+
+  --font-display: var(--font-sora);
+  --font-body: var(--font-inter);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Base                                                                     */
+/* ---------------------------------------------------------------------- */
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--atheo-white);
+  color: var(--atheo-aubergine);
+}
+
+::selection {
+  background: var(--atheo-coral);
+  color: var(--atheo-white);
+}
+
+* {
+  border-color: var(--atheo-line);
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--atheo-coral);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Reusable brand utilities                                                 */
+/* ---------------------------------------------------------------------- */
+.text-gradient {
+  background-image: var(--atheo-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.eyebrow {
+  font-family: var(--font-sora);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--atheo-coral);
+}
+
+.eyebrow-onDark {
+  font-family: var(--font-sora);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--atheo-apricot);
+}
+
+.path-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.path-track {
+  stroke: var(--atheo-line);
+  stroke-width: 1.5;
+}
+
+.path-track-onDark {
+  stroke: var(--atheo-line-on-dark);
+  stroke-width: 1.5;
+}
+
+.path-draw {
+  stroke: url(#atheo-path-gradient);
+  stroke-width: 1.5;
+}
+
+.node-dot {
+  fill: var(--atheo-white);
+  stroke: var(--atheo-coral);
+  stroke-width: 2;
+}
+
+.node-dot-onDark {
+  fill: var(--atheo-aubergine);
+  stroke: var(--atheo-apricot);
+  stroke-width: 2;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-sora);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--atheo-white);
+  background: var(--atheo-coral);
+  border: 1px solid var(--atheo-coral);
+  border-radius: 999px;
+  padding: 0.85rem 1.75rem;
+  min-height: 44px;
+  transition:
+    background-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.btn-primary:hover {
+  background: #ff5d67;
+  box-shadow: 0 12px 24px -12px rgba(255, 69, 80, 0.55);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-sora);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--atheo-aubergine);
+  background: transparent;
+  border: 1px solid var(--atheo-line);
+  border-radius: 999px;
+  padding: 0.85rem 1.75rem;
+  min-height: 44px;
+  transition:
+    border-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--atheo-coral);
+  color: var(--atheo-coral);
+  transform: translateY(-1px);
+}
+
+.btn-secondary-onDark {
+  color: var(--atheo-white);
+  border-color: var(--atheo-line-on-dark);
+}
+
+.btn-secondary-onDark:hover {
+  border-color: var(--atheo-apricot);
+  color: var(--atheo-apricot);
+}
+
+.hairline {
+  border-color: var(--atheo-hairline);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
