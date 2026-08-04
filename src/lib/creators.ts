@@ -16,8 +16,8 @@ export interface CreatorPortrait {
 export const CREATOR_PORTRAITS: Record<string, CreatorPortrait> = {
   hero: {
     id: "hero",
-    src: "/creators/creator-hero.svg",
-    alt: "Portrait of an Atheo-represented creator, warmly lit editorial style",
+    src: "/creators/large.jpg",
+    alt: "Creator filming a selfie-style video on a sunlit beach, mountains in the background",
   },
   atelier1: {
     id: "atelier1",
