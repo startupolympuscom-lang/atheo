@@ -87,6 +87,7 @@ export const SEED_PROFILE: CreatorProfile = {
   name: "Maya Chen",
   handle: "@mayacreates",
   avatarInitials: "MC",
+  avatarUrl: null,
   location: "Los Angeles, US",
   niches: ["Beauty", "Lifestyle"],
   bio: "Beauty and lifestyle creator. I make the kind of content I'd actually stop scrolling for — real routines, honest reviews, no overproduced nonsense.",
@@ -156,6 +157,12 @@ export const SEED_DEALS: BrandDeal[] = [
     ],
     deadline: now + 9 * day,
     status: "in_progress",
+    rating: {
+      stars: 5,
+      review: "Loving the Reel and Stories so far — exactly the tone we wanted.",
+      stage: "mid",
+      ratedAt: now - 2 * day,
+    },
   },
 ];
 

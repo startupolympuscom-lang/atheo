@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, BadgeCheck } from "lucide-react";
+import { useRef, useState } from "react";
+import { Plus, BadgeCheck, Camera } from "lucide-react";
 import { usePlatform } from "@/lib/platform/store";
 import { LiveFollowerCount } from "@/components/platform/LiveFollowerCount";
+import { Avatar } from "@/components/platform/Avatar";
+import { StarRating } from "@/components/platform/StarRating";
+import { computeTrustScore } from "@/lib/platform/trust-score";
+import { fileToSquareDataUrl } from "@/lib/platform/image-utils";
 import type { SocialPlatform } from "@/lib/platform/types";
 
 const ALL_PLATFORMS: SocialPlatform[] = ["Instagram", "TikTok", "YouTube", "X"];
@@ -12,6 +16,7 @@ const ALL_NICHES = ["Beauty", "Fashion", "Lifestyle", "UGC"] as const;
 export default function ProfilePage() {
   const { state, updateProfile, addSocialAccount } = usePlatform();
   const { profile } = state;
+  const trustScore = computeTrustScore(state.deals);
 
   const [form, setForm] = useState(profile);
   const [dirty, setDirty] = useState(false);
@@ -19,6 +24,8 @@ export default function ProfilePage() {
   const [newPlatform, setNewPlatform] = useState<SocialPlatform | "">("");
   const [newHandle, setNewHandle] = useState("");
   const [newFollowers, setNewFollowers] = useState("");
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const availablePlatforms = ALL_PLATFORMS.filter(
     (p) => !profile.socialAccounts.some((a) => a.platform === p),
@@ -60,6 +67,21 @@ export default function ProfilePage() {
     setNewFollowers("");
   }
 
+  async function handleAvatarChange(file: File | undefined) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Please choose an image file.");
+      return;
+    }
+    try {
+      const dataUrl = await fileToSquareDataUrl(file);
+      updateProfile({ avatarUrl: dataUrl });
+      setAvatarError(null);
+    } catch {
+      setAvatarError("Couldn't read that image — try a different file.");
+    }
+  }
+
   return (
     <div className="max-w-3xl">
       <p className="eyebrow">Your profile</p>
@@ -68,7 +90,46 @@ export default function ProfilePage() {
       </h1>
 
       <div className="mt-8 rounded-2xl border border-atheo-line bg-atheo-white p-6 sm:p-8">
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="flex flex-wrap items-center gap-5">
+          <div className="group relative shrink-0">
+            <Avatar url={profile.avatarUrl} initials={profile.avatarInitials} size={84} />
+            <button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              aria-label="Change profile photo"
+              className="absolute inset-0 flex items-center justify-center rounded-full bg-atheo-aubergine/0 text-atheo-white opacity-0 transition-all group-hover:bg-atheo-aubergine/50 group-hover:opacity-100"
+            >
+              <Camera className="h-6 w-6" />
+            </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleAvatarChange(e.target.files?.[0])}
+            />
+          </div>
+          <div>
+            <button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              className="text-sm font-semibold text-atheo-coral hover:text-atheo-aubergine"
+            >
+              {profile.avatarUrl ? "Change photo" : "Upload photo"}
+            </button>
+            {avatarError && <p className="mt-1 text-xs text-atheo-coral">{avatarError}</p>}
+            {trustScore.average !== null && (
+              <div className="mt-2 flex items-center gap-2">
+                <StarRating value={trustScore.average} />
+                <span className="text-sm font-medium text-atheo-aubergine-soft">
+                  {trustScore.average} Trust Score · {trustScore.count} brand review{trustScore.count === 1 ? "" : "s"}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-5 border-t border-atheo-hairline pt-6 sm:grid-cols-2">
           <Field label="Name">
             <input value={form.name} onChange={(e) => set("name", e.target.value)} className={inputClass} />
           </Field>

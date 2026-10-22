@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarClock, Bell, Trash2, Zap } from "lucide-react";
+import { CalendarClock, Bell, Trash2, Zap, List, Calendar as CalendarIcon } from "lucide-react";
 import { usePlatform } from "@/lib/platform/store";
 import { formatDateTime, formatUntil } from "@/lib/platform/format";
+import { ContentCalendar } from "@/components/platform/creative/ContentCalendar";
 import type { SocialPlatform } from "@/lib/platform/types";
 
 const PLATFORMS: SocialPlatform[] = ["Instagram", "TikTok", "YouTube", "X"];
@@ -19,6 +20,7 @@ export function SchedulePanel() {
   const [caption, setCaption] = useState("");
   const [when, setWhen] = useState(() => toLocalInputValue(new Date(Date.now() + 3600_000)));
   const [reminder, setReminder] = useState(true);
+  const [view, setView] = useState<"list" | "calendar">("list");
 
   const upcoming = [...state.scheduledPosts].sort((a, b) => a.scheduledAt - b.scheduledAt);
 
@@ -101,47 +103,74 @@ export function SchedulePanel() {
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 flex items-center justify-between">
         <p className="font-display text-sm font-semibold text-atheo-aubergine">Upcoming</p>
-        {upcoming.length === 0 ? (
-          <p className="mt-3 text-sm text-atheo-aubergine-mute">Nothing scheduled yet.</p>
-        ) : (
-          <ul className="mt-3 flex flex-col gap-3">
-            {upcoming.map((post) => (
-              <li
-                key={post.id}
-                className="flex items-start justify-between gap-3 rounded-2xl border border-atheo-line bg-atheo-white p-4"
-              >
-                <div className="min-w-0">
-                  <p className="font-display text-sm font-semibold text-atheo-aubergine">
-                    {post.platform}{" "}
-                    <span className="font-normal text-atheo-aubergine-mute">· {formatUntil(post.scheduledAt)}</span>
-                  </p>
-                  <p className="mt-1 truncate text-sm text-atheo-aubergine-soft">{post.caption}</p>
-                  <p className="mt-1 flex items-center gap-1.5 text-xs text-atheo-aubergine-mute">
-                    <CalendarClock className="h-3.5 w-3.5" />
-                    {formatDateTime(post.scheduledAt)}
-                    {post.reminder && (
-                      <>
-                        <Bell className="ml-1 h-3.5 w-3.5" />
-                        reminder on
-                      </>
-                    )}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => deleteScheduledPost(post.id)}
-                  aria-label="Remove scheduled post"
-                  className="shrink-0 text-atheo-aubergine-mute hover:text-atheo-coral"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="flex gap-1 rounded-full border border-atheo-line p-1">
+          <button
+            type="button"
+            onClick={() => setView("list")}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              view === "list" ? "bg-atheo-blush text-atheo-coral" : "text-atheo-aubergine-mute"
+            }`}
+          >
+            <List className="h-3.5 w-3.5" />
+            List
+          </button>
+          <button
+            type="button"
+            onClick={() => setView("calendar")}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              view === "calendar" ? "bg-atheo-blush text-atheo-coral" : "text-atheo-aubergine-mute"
+            }`}
+          >
+            <CalendarIcon className="h-3.5 w-3.5" />
+            Calendar
+          </button>
+        </div>
       </div>
+
+      {view === "calendar" ? (
+        <div className="mt-3">
+          <ContentCalendar posts={state.scheduledPosts} deals={state.deals} brands={state.brands} />
+        </div>
+      ) : upcoming.length === 0 ? (
+        <p className="mt-3 text-sm text-atheo-aubergine-mute">Nothing scheduled yet.</p>
+      ) : (
+        <ul className="mt-3 flex flex-col gap-3">
+          {upcoming.map((post) => (
+            <li
+              key={post.id}
+              className="flex items-start justify-between gap-3 rounded-2xl border border-atheo-line bg-atheo-white p-4"
+            >
+              <div className="min-w-0">
+                <p className="font-display text-sm font-semibold text-atheo-aubergine">
+                  {post.platform}{" "}
+                  <span className="font-normal text-atheo-aubergine-mute">· {formatUntil(post.scheduledAt)}</span>
+                </p>
+                <p className="mt-1 truncate text-sm text-atheo-aubergine-soft">{post.caption}</p>
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-atheo-aubergine-mute">
+                  <CalendarClock className="h-3.5 w-3.5" />
+                  {formatDateTime(post.scheduledAt)}
+                  {post.reminder && (
+                    <>
+                      <Bell className="ml-1 h-3.5 w-3.5" />
+                      reminder on
+                    </>
+                  )}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => deleteScheduledPost(post.id)}
+                aria-label="Remove scheduled post"
+                className="shrink-0 text-atheo-aubergine-mute hover:text-atheo-coral"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Send, Clock, CheckCircle2, XCircle, Sparkles } from "lucide-react";
 import { usePlatform } from "@/lib/platform/store";
+import { computeMatchScore } from "@/lib/platform/match-score";
 import type { Brand, BrandCategory, Interest } from "@/lib/platform/types";
 
 const CATEGORIES: (BrandCategory | "All")[] = ["All", "Beauty", "Fashion", "Lifestyle", "UGC"];
@@ -11,7 +12,10 @@ export default function BrandsPage() {
   const { state } = usePlatform();
   const [filter, setFilter] = useState<(typeof CATEGORIES)[number]>("All");
 
-  const brands = state.brands.filter((b) => filter === "All" || b.category === filter);
+  const brands = state.brands
+    .filter((b) => filter === "All" || b.category === filter)
+    .map((b) => ({ brand: b, match: computeMatchScore(b, state.profile.niches) }))
+    .sort((a, b) => b.match.score - a.match.score);
 
   return (
     <div>
@@ -20,8 +24,8 @@ export default function BrandsPage() {
         Brands open to pitches.
       </h1>
       <p className="mt-2 max-w-xl text-sm text-atheo-aubergine-soft">
-        Express interest and brands reply right here — replies and offers also show up in your
-        notifications.
+        Sorted by match to your niches — express interest and brands reply right here, replies and offers
+        also show up in your notifications.
       </p>
 
       <div className="mt-6 flex flex-wrap gap-2">
@@ -42,15 +46,28 @@ export default function BrandsPage() {
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {brands.map((brand) => (
-          <BrandCard key={brand.id} brand={brand} interest={state.interests.find((i) => i.brandId === brand.id)} />
+        {brands.map(({ brand, match }) => (
+          <BrandCard
+            key={brand.id}
+            brand={brand}
+            match={match}
+            interest={state.interests.find((i) => i.brandId === brand.id)}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-function BrandCard({ brand, interest }: { brand: Brand; interest?: Interest }) {
+function BrandCard({
+  brand,
+  match,
+  interest,
+}: {
+  brand: Brand;
+  match: { score: number; label: string };
+  interest?: Interest;
+}) {
   const { expressInterest, resolveInterest } = usePlatform();
   const [composing, setComposing] = useState(false);
   const [message, setMessage] = useState(
@@ -77,6 +94,16 @@ function BrandCard({ brand, interest }: { brand: Brand; interest?: Interest }) {
 
       <p className="mt-3 flex-1 text-sm text-atheo-aubergine-soft">{brand.description}</p>
       <p className="mt-3 text-xs text-atheo-aubergine-mute">{brand.location}</p>
+
+      <div className="mt-3 flex items-center gap-2 rounded-xl bg-atheo-blush/50 px-3 py-2">
+        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-atheo-white">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-atheo-coral to-atheo-apricot"
+            style={{ width: `${match.score}%` }}
+          />
+        </div>
+        <span className="shrink-0 text-xs font-semibold text-atheo-aubergine">{match.score}% match</span>
+      </div>
 
       <div className="mt-4">
         {brandInitiatedPending ? (

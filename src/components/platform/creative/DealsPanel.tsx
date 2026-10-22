@@ -2,6 +2,7 @@
 
 import { usePlatform } from "@/lib/platform/store";
 import { formatUntil } from "@/lib/platform/format";
+import { StarRating } from "@/components/platform/StarRating";
 
 const STATUS_LABEL: Record<string, string> = {
   offered: "Offered",
@@ -63,6 +64,18 @@ export function DealsPanel() {
                 </li>
               ))}
             </ul>
+
+            {deal.rating && (
+              <div className="mt-4 rounded-xl bg-atheo-blush/50 p-3">
+                <div className="flex items-center justify-between">
+                  <StarRating value={deal.rating.stars} size={14} />
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-atheo-aubergine-mute">
+                    {deal.rating.stage === "mid" ? "Mid-deal check-in" : "Final review"}
+                  </span>
+                </div>
+                <p className="mt-1.5 text-xs text-atheo-aubergine-soft">&ldquo;{deal.rating.review}&rdquo;</p>
+              </div>
+            )}
           </div>
         );
       })}

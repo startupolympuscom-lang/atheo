@@ -30,6 +30,7 @@ import {
   SEED_PROFILE,
   SEED_SCHEDULED_POSTS,
 } from "./seed-data";
+import { generateRating } from "./rating-generator";
 
 const STORAGE_KEY = "atheo-platform-demo-v1";
 
@@ -62,7 +63,14 @@ type Action =
   | { type: "DELETE_SCHEDULED_POST"; id: string }
   | { type: "REMINDER_FIRED"; postId: string }
   | { type: "ADD_NOTIFICATION"; notification: AppNotification }
-  | { type: "TOGGLE_DELIVERABLE"; dealId: string; index: number };
+  | { type: "TOGGLE_DELIVERABLE"; dealId: string; index: number }
+  | { type: "RECEIVE_RATING"; dealId: string; stage: "mid" | "final" };
+
+function deriveDealStatus(deliverables: { done: boolean }[]): BrandDeal["status"] {
+  if (deliverables.every((d) => d.done)) return "completed";
+  if (deliverables.some((d) => d.done)) return "in_progress";
+  return "offered";
+}
 
 function reducer(state: PlatformState, action: Action): PlatformState {
   switch (action.type) {
@@ -183,6 +191,7 @@ function reducer(state: PlatformState, action: Action): PlatformState {
           ],
           deadline: Date.now() + 14 * 86_400_000,
           status: "offered",
+          rating: null,
         };
         deals = [deal, ...state.deals];
       }
@@ -239,15 +248,39 @@ function reducer(state: PlatformState, action: Action): PlatformState {
     case "TOGGLE_DELIVERABLE":
       return {
         ...state,
-        deals: state.deals.map((d) =>
-          d.id === action.dealId
-            ? {
-                ...d,
-                deliverables: d.deliverables.map((item, i) => (i === action.index ? { ...item, done: !item.done } : item)),
-              }
-            : d,
-        ),
+        deals: state.deals.map((d) => {
+          if (d.id !== action.dealId) return d;
+          const deliverables = d.deliverables.map((item, i) =>
+            i === action.index ? { ...item, done: !item.done } : item,
+          );
+          return { ...d, deliverables, status: deriveDealStatus(deliverables) };
+        }),
       };
+
+    case "RECEIVE_RATING": {
+      const deal = state.deals.find((d) => d.id === action.dealId);
+      if (!deal) return state;
+      const brand = state.brands.find((b) => b.id === deal.brandId);
+      const { stars, review } = generateRating(action.stage);
+
+      const notification: AppNotification = {
+        id: `notif-rating-${action.dealId}-${action.stage}`,
+        type: "rating",
+        title: `${brand?.name ?? "A brand"} rated you ${stars}★`,
+        body: review,
+        createdAt: Date.now(),
+        read: false,
+        brandId: deal.brandId,
+      };
+
+      return {
+        ...state,
+        deals: state.deals.map((d) =>
+          d.id === action.dealId ? { ...d, rating: { stars, review, stage: action.stage, ratedAt: Date.now() } } : d,
+        ),
+        notifications: [notification, ...state.notifications],
+      };
+    }
 
     default:
       return state;
@@ -394,10 +427,28 @@ export function PlatformProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const deleteScheduledPost = useCallback((id: string) => dispatch({ type: "DELETE_SCHEDULED_POST", id }), []);
-  const toggleDeliverable = useCallback(
-    (dealId: string, index: number) => dispatch({ type: "TOGGLE_DELIVERABLE", dealId, index }),
-    [],
-  );
+  const toggleDeliverable = useCallback((dealId: string, index: number) => {
+    const deal = stateRef.current.deals.find((d) => d.id === dealId);
+    dispatch({ type: "TOGGLE_DELIVERABLE", dealId, index });
+    if (!deal) return;
+
+    const anyDoneBefore = deal.deliverables.some((d) => d.done);
+    const newDeliverables = deal.deliverables.map((d, i) => (i === index ? { ...d, done: !d.done } : d));
+    const anyDoneAfter = newDeliverables.some((d) => d.done);
+    const allDoneBefore = deal.deliverables.every((d) => d.done);
+    const allDoneAfter = newDeliverables.every((d) => d.done);
+
+    // First deliverable checked off: a mid-deal check-in rating, if the brand hasn't rated yet.
+    if (!anyDoneBefore && anyDoneAfter && !deal.rating) {
+      const delay = 8000 + Math.random() * 7000;
+      setTimeout(() => dispatch({ type: "RECEIVE_RATING", dealId, stage: "mid" }), delay);
+    }
+    // All deliverables just completed: a final rating follows shortly after.
+    if (!allDoneBefore && allDoneAfter) {
+      const delay = 6000 + Math.random() * 6000;
+      setTimeout(() => dispatch({ type: "RECEIVE_RATING", dealId, stage: "final" }), delay);
+    }
+  }, []);
   const updateContentStatus = useCallback(
     (id: string, status: ContentItem["status"]) => dispatch({ type: "UPDATE_CONTENT_STATUS", id, status }),
     [],

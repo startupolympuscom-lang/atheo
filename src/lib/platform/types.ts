@@ -11,6 +11,7 @@ export interface CreatorProfile {
   name: string;
   handle: string;
   avatarInitials: string;
+  avatarUrl: string | null;
   location: string;
   niches: string[];
   bio: string;
@@ -41,7 +42,7 @@ export interface Interest {
   respondedAt: number | null;
 }
 
-export type NotificationType = "brand_interest" | "brand_reply" | "deal_offer" | "reminder" | "system";
+export type NotificationType = "brand_interest" | "brand_reply" | "deal_offer" | "rating" | "reminder" | "system";
 
 export interface AppNotification {
   id: string;
@@ -80,6 +81,13 @@ export interface ScheduledPost {
 
 export type DealStatus = "offered" | "in_progress" | "completed";
 
+export interface DealRating {
+  stars: 1 | 2 | 3 | 4 | 5;
+  review: string;
+  stage: "mid" | "final";
+  ratedAt: number;
+}
+
 export interface BrandDeal {
   id: string;
   brandId: string;
@@ -88,6 +96,7 @@ export interface BrandDeal {
   deliverables: { label: string; done: boolean }[];
   deadline: number;
   status: DealStatus;
+  rating: DealRating | null;
 }
 
 export interface PlatformState {

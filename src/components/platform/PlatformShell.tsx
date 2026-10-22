@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, User, Building2, Sparkles, Menu, X, ArrowLeft } from "lucide-react";
 import { AtheoLogo } from "@/components/brand/AtheoLogo";
 import { NotificationBell } from "./NotificationBell";
+import { Avatar } from "./Avatar";
 import { usePlatform } from "@/lib/platform/store";
 
 const NAV_ITEMS = [
@@ -83,9 +84,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3">
             <NotificationBell />
             <div className="hidden items-center gap-2 rounded-full border border-atheo-line py-1 pl-1 pr-3 sm:flex">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-atheo-coral to-atheo-apricot font-display text-xs font-bold text-atheo-white">
-                {state.profile.avatarInitials}
-              </span>
+              <Avatar url={state.profile.avatarUrl} initials={state.profile.avatarInitials} size={28} />
               <span className="font-display text-sm font-medium text-atheo-aubergine">{state.profile.name}</span>
             </div>
           </div>

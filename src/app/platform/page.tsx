@@ -4,10 +4,17 @@ import Link from "next/link";
 import { User, Building2, Sparkles, ArrowRight, Users, Clock, Bell as BellIcon, CalendarClock } from "lucide-react";
 import { usePlatform } from "@/lib/platform/store";
 import { formatFollowers, formatRelativeTime } from "@/lib/platform/format";
+import { computeTrustScore } from "@/lib/platform/trust-score";
+import { computeAchievements } from "@/lib/platform/achievements";
+import { Avatar } from "@/components/platform/Avatar";
+import { StarRating } from "@/components/platform/StarRating";
+import { Achievements } from "@/components/platform/Achievements";
 
 export default function PlatformDashboard() {
   const { state } = usePlatform();
   const { profile, interests, notifications, scheduledPosts } = state;
+  const trustScore = computeTrustScore(state.deals);
+  const achievements = computeAchievements(state);
 
   const totalFollowers = profile.socialAccounts.reduce((sum, a) => sum + a.followers, 0);
   const pendingInterests = interests.filter((i) => i.status === "pending").length;
@@ -44,11 +51,23 @@ export default function PlatformDashboard() {
 
   return (
     <div>
-      <p className="eyebrow">Overview</p>
-      <h1 className="mt-2 font-display text-2xl font-bold text-atheo-aubergine sm:text-3xl">
-        Welcome back, {profile.name.split(" ")[0]}.
-      </h1>
-      <p className="mt-2 max-w-xl text-sm text-atheo-aubergine-soft">
+      <div className="flex flex-wrap items-center gap-4">
+        <Avatar url={profile.avatarUrl} initials={profile.avatarInitials} size={56} />
+        <div>
+          <p className="eyebrow">Overview</p>
+          <h1 className="mt-1 font-display text-2xl font-bold text-atheo-aubergine sm:text-3xl">
+            Welcome back, {profile.name.split(" ")[0]}.
+          </h1>
+        </div>
+        {trustScore.average !== null && (
+          <div className="ml-auto flex items-center gap-2 rounded-full border border-atheo-line bg-atheo-white px-4 py-2">
+            <StarRating value={trustScore.average} size={14} />
+            <span className="text-sm font-semibold text-atheo-aubergine">{trustScore.average}</span>
+            <span className="text-xs text-atheo-aubergine-mute">({trustScore.count})</span>
+          </div>
+        )}
+      </div>
+      <p className="mt-3 max-w-xl text-sm text-atheo-aubergine-soft">
         This is a live demo — brand replies, reminders and your follower counts update in real time while
         you browse.
       </p>
@@ -109,6 +128,10 @@ export default function PlatformDashboard() {
             ))}
           </div>
         </div>
+      </div>
+
+      <div className="mt-10">
+        <Achievements achievements={achievements} />
       </div>
     </div>
   );

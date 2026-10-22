@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Bell, Building2, CheckCircle2, Sparkles, Clock, type LucideIcon } from "lucide-react";
+import { Bell, Building2, CheckCircle2, Sparkles, Clock, Star, type LucideIcon } from "lucide-react";
 import { usePlatform } from "@/lib/platform/store";
 import { formatRelativeTime } from "@/lib/platform/format";
 import type { NotificationType } from "@/lib/platform/types";
@@ -10,6 +10,7 @@ const TYPE_ICON: Record<NotificationType, LucideIcon> = {
   brand_interest: Building2,
   brand_reply: CheckCircle2,
   deal_offer: Sparkles,
+  rating: Star,
   reminder: Clock,
   system: Bell,
 };
