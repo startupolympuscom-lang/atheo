@@ -8,6 +8,7 @@ export const ROUTES = {
   contact: "/contact",
   privacy: "/privacy",
   terms: "/terms",
+  platformDemo: "/platform",
 } as const;
 
 /** In-page anchors the sticky header and footer scroll to. */
