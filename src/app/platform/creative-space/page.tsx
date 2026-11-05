@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, Wand2, CalendarClock, Handshake } from "lucide-react";
+import { Upload, Wand2, CalendarClock, Handshake, Flame } from "lucide-react";
 import { UploadPanel } from "@/components/platform/creative/UploadPanel";
 import { CaptionsPanel } from "@/components/platform/creative/CaptionsPanel";
 import { SchedulePanel } from "@/components/platform/creative/SchedulePanel";
 import { DealsPanel } from "@/components/platform/creative/DealsPanel";
+import { InspirationPanel } from "@/components/platform/creative/InspirationPanel";
 
 const TABS = [
   { id: "upload", label: "Upload & Edit", icon: Upload },
   { id: "captions", label: "Captions", icon: Wand2 },
+  { id: "inspiration", label: "Inspiration", icon: Flame },
   { id: "schedule", label: "Schedule", icon: CalendarClock },
   { id: "deals", label: "Brand Deals", icon: Handshake },
 ] as const;
@@ -59,6 +61,7 @@ export default function CreativeSpacePage() {
           />
         )}
         {tab === "captions" && <CaptionsPanel key={captionTarget ?? "none"} selectedContentId={captionTarget} />}
+        {tab === "inspiration" && <InspirationPanel />}
         {tab === "schedule" && <SchedulePanel />}
         {tab === "deals" && <DealsPanel />}
       </div>

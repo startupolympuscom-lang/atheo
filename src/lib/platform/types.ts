@@ -42,7 +42,15 @@ export interface Interest {
   respondedAt: number | null;
 }
 
-export type NotificationType = "brand_interest" | "brand_reply" | "deal_offer" | "rating" | "reminder" | "system";
+export type NotificationType =
+  | "brand_interest"
+  | "brand_reply"
+  | "deal_offer"
+  | "rating"
+  | "reminder"
+  | "deal_message"
+  | "payment"
+  | "system";
 
 export interface AppNotification {
   id: string;
@@ -88,15 +96,29 @@ export interface DealRating {
   ratedAt: number;
 }
 
+export type PaymentStatus = "unbilled" | "invoiced" | "paid";
+
+export interface DealMessage {
+  id: string;
+  sender: "creator" | "brand";
+  text: string;
+  sentAt: number;
+}
+
 export interface BrandDeal {
   id: string;
   brandId: string;
   title: string;
   compensation: string;
+  amount: number;
   deliverables: { label: string; done: boolean }[];
   deadline: number;
   status: DealStatus;
   rating: DealRating | null;
+  messages: DealMessage[];
+  paymentStatus: PaymentStatus;
+  invoicedAt: number | null;
+  paidAt: number | null;
 }
 
 export interface PlatformState {

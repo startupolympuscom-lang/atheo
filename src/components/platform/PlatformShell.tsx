@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, User, Building2, Sparkles, Menu, X, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, User, Building2, Sparkles, Share2, Menu, X, ArrowLeft } from "lucide-react";
 import { AtheoLogo } from "@/components/brand/AtheoLogo";
 import { NotificationBell } from "./NotificationBell";
 import { Avatar } from "./Avatar";
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { href: "/platform/profile", label: "Profile", icon: User },
   { href: "/platform/brands", label: "Brands", icon: Building2 },
   { href: "/platform/creative-space", label: "Creative Space", icon: Sparkles },
+  { href: "/platform/media-kit", label: "Media Kit", icon: Share2 },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -28,7 +29,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-atheo-white">
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-atheo-line bg-atheo-blush/30 lg:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-atheo-line bg-atheo-blush/30 lg:flex print:hidden">
         <div className="px-6 py-6">
           <AtheoLogo />
         </div>
@@ -63,7 +64,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-atheo-line bg-atheo-white px-4 py-4 sm:px-6 lg:px-8">
+        <header className="flex items-center justify-between border-b border-atheo-line bg-atheo-white px-4 py-4 sm:px-6 lg:px-8 print:hidden">
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -134,7 +135,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</main>
+        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8 print:p-0">{children}</main>
       </div>
     </div>
   );

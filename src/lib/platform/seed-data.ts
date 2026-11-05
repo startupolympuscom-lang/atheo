@@ -150,6 +150,7 @@ export const SEED_DEALS: BrandDeal[] = [
     brandId: "dieti-natura",
     title: "Serum launch — routine video",
     compensation: "$1,800 + product",
+    amount: 1800,
     deliverables: [
       { label: "1 Instagram Reel", done: true },
       { label: "2 Instagram Stories", done: true },
@@ -163,6 +164,23 @@ export const SEED_DEALS: BrandDeal[] = [
       stage: "mid",
       ratedAt: now - 2 * day,
     },
+    messages: [
+      {
+        id: "msg-seed-1",
+        sender: "brand",
+        text: "Excited to see what you put together for the serum launch! Let us know if you need anything.",
+        sentAt: now - 5 * day,
+      },
+      {
+        id: "msg-seed-2",
+        sender: "creator",
+        text: "Thank you! Filming the routine video this week — will share a draft before it goes live.",
+        sentAt: now - 4 * day,
+      },
+    ],
+    paymentStatus: "unbilled",
+    invoicedAt: null,
+    paidAt: null,
   },
 ];
 

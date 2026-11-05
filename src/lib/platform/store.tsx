@@ -15,6 +15,7 @@ import type {
   ContentItem,
   ContentStatus,
   CreatorProfile,
+  DealMessage,
   Interest,
   InterestStatus,
   PlatformState,
@@ -31,6 +32,7 @@ import {
   SEED_SCHEDULED_POSTS,
 } from "./seed-data";
 import { generateRating } from "./rating-generator";
+import { generateBrandReply } from "./message-generator";
 
 const STORAGE_KEY = "atheo-platform-demo-v1";
 
@@ -64,7 +66,10 @@ type Action =
   | { type: "REMINDER_FIRED"; postId: string }
   | { type: "ADD_NOTIFICATION"; notification: AppNotification }
   | { type: "TOGGLE_DELIVERABLE"; dealId: string; index: number }
-  | { type: "RECEIVE_RATING"; dealId: string; stage: "mid" | "final" };
+  | { type: "RECEIVE_RATING"; dealId: string; stage: "mid" | "final" }
+  | { type: "SEND_DEAL_MESSAGE"; dealId: string; message: DealMessage }
+  | { type: "MARK_DEAL_INVOICED"; dealId: string }
+  | { type: "MARK_DEAL_PAID"; dealId: string };
 
 function deriveDealStatus(deliverables: { done: boolean }[]): BrandDeal["status"] {
   if (deliverables.every((d) => d.done)) return "completed";
@@ -179,11 +184,14 @@ function reducer(state: PlatformState, action: Action): PlatformState {
               : brand.budgetRange === "$$"
                 ? "$1,200 + product"
                 : "Product + affiliate commission";
+        const amount =
+          brand.budgetRange === "$$$$" ? 3500 : brand.budgetRange === "$$$" ? 2200 : brand.budgetRange === "$$" ? 1200 : 0;
         const deal: BrandDeal = {
           id: `deal-${action.interestId}`,
           brandId: brand.id,
           title: `${brand.name} collaboration`,
           compensation,
+          amount,
           deliverables: [
             { label: "1 Instagram Reel", done: false },
             { label: "2 Instagram Stories", done: false },
@@ -192,6 +200,10 @@ function reducer(state: PlatformState, action: Action): PlatformState {
           deadline: Date.now() + 14 * 86_400_000,
           status: "offered",
           rating: null,
+          messages: [],
+          paymentStatus: "unbilled",
+          invoicedAt: null,
+          paidAt: null,
         };
         deals = [deal, ...state.deals];
       }
@@ -282,6 +294,56 @@ function reducer(state: PlatformState, action: Action): PlatformState {
       };
     }
 
+    case "SEND_DEAL_MESSAGE": {
+      const deal = state.deals.find((d) => d.id === action.dealId);
+      if (!deal) return state;
+      const deals = state.deals.map((d) =>
+        d.id === action.dealId ? { ...d, messages: [...d.messages, action.message] } : d,
+      );
+      if (action.message.sender === "brand") {
+        const brand = state.brands.find((b) => b.id === deal.brandId);
+        const notification: AppNotification = {
+          id: `notif-msg-${action.message.id}`,
+          type: "deal_message",
+          title: `${brand?.name ?? "A brand"} sent you a message`,
+          body: action.message.text,
+          createdAt: Date.now(),
+          read: false,
+          brandId: deal.brandId,
+        };
+        return { ...state, deals, notifications: [notification, ...state.notifications] };
+      }
+      return { ...state, deals };
+    }
+
+    case "MARK_DEAL_INVOICED":
+      return {
+        ...state,
+        deals: state.deals.map((d) =>
+          d.id === action.dealId ? { ...d, paymentStatus: "invoiced", invoicedAt: Date.now() } : d,
+        ),
+      };
+
+    case "MARK_DEAL_PAID": {
+      const deal = state.deals.find((d) => d.id === action.dealId);
+      if (!deal) return state;
+      const brand = state.brands.find((b) => b.id === deal.brandId);
+      const notification: AppNotification = {
+        id: `notif-paid-${action.dealId}`,
+        type: "payment",
+        title: `${brand?.name ?? "A brand"} paid your invoice`,
+        body: `$${deal.amount.toLocaleString()} marked as paid for "${deal.title}".`,
+        createdAt: Date.now(),
+        read: false,
+        brandId: deal.brandId,
+      };
+      return {
+        ...state,
+        deals: state.deals.map((d) => (d.id === action.dealId ? { ...d, paymentStatus: "paid", paidAt: Date.now() } : d)),
+        notifications: [notification, ...state.notifications],
+      };
+    }
+
     default:
       return state;
   }
@@ -301,6 +363,8 @@ interface PlatformContextValue {
   schedulePost: (post: Omit<ScheduledPost, "id" | "status">) => void;
   deleteScheduledPost: (id: string) => void;
   toggleDeliverable: (dealId: string, index: number) => void;
+  sendDealMessage: (dealId: string, text: string) => void;
+  markDealInvoiced: (dealId: string) => void;
   notify: (notification: Omit<AppNotification, "id" | "createdAt" | "read">) => void;
 }
 
@@ -453,6 +517,22 @@ export function PlatformProvider({ children }: { children: ReactNode }) {
     (id: string, status: ContentItem["status"]) => dispatch({ type: "UPDATE_CONTENT_STATUS", id, status }),
     [],
   );
+  const sendDealMessage = useCallback((dealId: string, text: string) => {
+    const message: DealMessage = { id: `msg-${Date.now()}`, sender: "creator", text, sentAt: Date.now() };
+    dispatch({ type: "SEND_DEAL_MESSAGE", dealId, message });
+    const delay = 4000 + Math.random() * 5000;
+    setTimeout(() => {
+      const deal = stateRef.current.deals.find((d) => d.id === dealId);
+      if (!deal) return;
+      const reply: DealMessage = { id: `msg-${Date.now()}`, sender: "brand", text: generateBrandReply(), sentAt: Date.now() };
+      dispatch({ type: "SEND_DEAL_MESSAGE", dealId, message: reply });
+    }, delay);
+  }, []);
+  const markDealInvoiced = useCallback((dealId: string) => {
+    dispatch({ type: "MARK_DEAL_INVOICED", dealId });
+    const delay = 8000 + Math.random() * 8000;
+    setTimeout(() => dispatch({ type: "MARK_DEAL_PAID", dealId }), delay);
+  }, []);
   const notify = useCallback(
     (notification: Omit<AppNotification, "id" | "createdAt" | "read">) =>
       dispatch({
@@ -478,6 +558,8 @@ export function PlatformProvider({ children }: { children: ReactNode }) {
         schedulePost,
         deleteScheduledPost,
         toggleDeliverable,
+        sendDealMessage,
+        markDealInvoiced,
         notify,
       }}
     >
