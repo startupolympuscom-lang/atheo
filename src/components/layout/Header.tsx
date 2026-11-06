@@ -50,6 +50,12 @@ export function Header() {
 
         <div className="hidden items-center gap-3 lg:flex">
           <Link
+            href={ROUTES.pricing}
+            className="font-display text-sm font-medium text-atheo-aubergine-soft transition-colors hover:text-atheo-coral"
+          >
+            Pricing
+          </Link>
+          <Link
             href={ROUTES.platformDemo}
             className="inline-flex items-center gap-1.5 rounded-full border border-atheo-line px-3.5 py-1.5 font-display text-xs font-semibold text-atheo-aubergine-soft transition-colors hover:border-atheo-coral hover:text-atheo-coral"
           >
@@ -90,6 +96,13 @@ export function Header() {
                 {link.label}
               </a>
             ))}
+            <Link
+              href={ROUTES.pricing}
+              onClick={() => setMenuOpen(false)}
+              className="font-display text-base font-medium text-atheo-aubergine"
+            >
+              Pricing
+            </Link>
             <Link
               href={ROUTES.signIn}
               onClick={() => setMenuOpen(false)}

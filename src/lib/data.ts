@@ -14,6 +14,7 @@ export const NAV_LINKS: NavLink[] = [
 
 export const FOOTER_LINKS: NavLink[] = [
   ...NAV_LINKS,
+  { label: "Pricing", href: ROUTES.pricing },
   { label: "Contact", href: ROUTES.contact },
 ];
 
