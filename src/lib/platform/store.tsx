@@ -48,8 +48,46 @@ function initialState(): PlatformState {
   };
 }
 
+/**
+ * Backfills fields added to the state shape after earlier builds. Saved
+ * localStorage from an older version of the demo won't have e.g.
+ * `deal.messages` or `profile.avatarUrl` — without this, reading them
+ * crashes (`.length` on undefined) or silently hides newer UI.
+ */
+function normalizeState(raw: unknown): PlatformState {
+  const fallback = initialState();
+  if (!raw || typeof raw !== "object") return fallback;
+  const partial = raw as Partial<PlatformState>;
+
+  const profile: CreatorProfile = {
+    ...fallback.profile,
+    ...partial.profile,
+    avatarUrl: partial.profile?.avatarUrl ?? null,
+  };
+
+  const deals: BrandDeal[] = (partial.deals ?? fallback.deals).map((d) => ({
+    ...d,
+    amount: d.amount ?? 0,
+    messages: d.messages ?? [],
+    paymentStatus: d.paymentStatus ?? "unbilled",
+    invoicedAt: d.invoicedAt ?? null,
+    paidAt: d.paidAt ?? null,
+    rating: d.rating ?? null,
+  }));
+
+  return {
+    profile,
+    brands: partial.brands ?? fallback.brands,
+    interests: partial.interests ?? fallback.interests,
+    notifications: partial.notifications ?? fallback.notifications,
+    content: partial.content ?? fallback.content,
+    scheduledPosts: partial.scheduledPosts ?? fallback.scheduledPosts,
+    deals,
+  };
+}
+
 type Action =
-  | { type: "HYDRATE"; state: PlatformState }
+  | { type: "HYDRATE"; state: unknown }
   | { type: "UPDATE_PROFILE"; patch: Partial<CreatorProfile> }
   | { type: "ADD_SOCIAL_ACCOUNT"; account: SocialAccount }
   | { type: "TICK_FOLLOWERS" }
@@ -80,7 +118,7 @@ function deriveDealStatus(deliverables: { done: boolean }[]): BrandDeal["status"
 function reducer(state: PlatformState, action: Action): PlatformState {
   switch (action.type) {
     case "HYDRATE":
-      return action.state;
+      return normalizeState(action.state);
 
     case "UPDATE_PROFILE":
       return { ...state, profile: { ...state.profile, ...action.patch } };
@@ -382,7 +420,7 @@ export function PlatformProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) dispatch({ type: "HYDRATE", state: JSON.parse(raw) as PlatformState });
+      if (raw) dispatch({ type: "HYDRATE", state: JSON.parse(raw) });
     } catch {
       // ignore corrupt/missing storage, keep seed state
     } finally {
